@@ -123,3 +123,35 @@ tql eval (1698821023, 1698821023, '1s') days_in_month();
 tql eval (1701413023, 1701413023, '1s') days_in_month();
 
 drop table metrics;
+
+-- date functions read sample values as Unix seconds, not the evaluation time
+create table date_samples (ts timestamp time index, host string primary key, val double);
+
+-- 1970-01-01T00:02:00Z, 2024-02-29T13:45:30Z, 2023-12-31T23:59:59.9Z, NaN
+insert into date_samples values (0, 'a', 120), (5000, 'a', 1709214330), (0, 'b', 1704067199.9), (5000, 'b', 'NaN'::DOUBLE);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') minute(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') hour(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') month(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') year(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') day_of_month(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') day_of_week(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') day_of_year(date_samples);
+
+-- SQLNESS SORT_RESULT 3 1
+tql eval (0, 5, '5s') days_in_month(date_samples);
+
+drop table date_samples;
